@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "jsx": "react-jsx",
+    "declaration": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "yu-component": [
+        "./src/index.ts"
+      ],
+      "yu-component/*": [
+        "./src/*.ts"
+      ]
+    },
+  }
+}
