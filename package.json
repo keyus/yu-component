@@ -1,6 +1,6 @@
 {
   "name": "yu-component",
-  "version": "0.1.9",
+  "version": "5.0.2",
   "description": "yu",
   "module": "./es/index",
   "main": "./lib/index",
@@ -36,8 +36,8 @@
     "ahooks":"^3.7.7"
   },
   "peerDependencies":{
-    "antd": ">=4.24.8",
-    "react": ">=16.8",
-    "react-dom": ">=16.8"
+    "antd": ">=5.4",
+    "react": ">=18.2",
+    "react-dom": ">=18.2"
   }
 }

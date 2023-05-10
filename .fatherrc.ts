@@ -10,7 +10,4 @@ export default defineConfig({
   prebundle: {
     deps: {}
   },
-  extraBabelPlugins: [
-    ['import', { libraryName: 'antd', style: 'css' }],
-  ]
 });
