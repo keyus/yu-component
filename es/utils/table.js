@@ -30,7 +30,7 @@ export var getQuery = function getQuery(_ref) {
   return _objectSpread(_objectSpread({
     page: page,
     size: size,
-    orderField: sorter.orderField,
+    orderField: sorter.field,
     isAsc: sorter.order === 'ascend'
   }, urlParams), search);
 };
