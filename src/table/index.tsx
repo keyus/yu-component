@@ -206,7 +206,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
             {form.items && (
                 <div
                     className={formClass}
-                    style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 18 }}
+                    style={{ display: 'flex', justifyContent: 'space-between', }}
                 >
                     <Form
                         initialValues={form.initialValues as any}
