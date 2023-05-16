@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Table, Form, Button, Space } from 'antd';
+import { Table, Form, Button, Space, ConfigProvider } from 'antd';
+import zhCN from 'antd/es/locale/zh_CN';
 import type { FormInstance } from 'antd';
 import cn from 'classnames';
 import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
@@ -202,58 +203,60 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
     const x = useX(column);
 
     return (
-        <div className={wrapperClass}>
-            {form.items && (
-                <div
-                    className={formClass}
-                    style={{ display: 'flex', justifyContent: 'space-between', }}
-                >
-                    <Form
-                        initialValues={form.initialValues as any}
-                        form={table.form}
-                        layout="inline"
-                        onFinish={onFinish}>
-                        {form.title && <Form.Item>{form.title}</Form.Item>}
-                        {form.items}
-                        <Form.Item>
-                            <Space>
-                                <Button type="primary" htmlType="submit">
-                                    查询
-                                </Button>
-                                <Button onClick={onReset}>重置</Button>
-                                {form.extra}
-                            </Space>
-                        </Form.Item>
-                    </Form>
-                    {form.right}
+        <ConfigProvider locale={zhCN}>
+            <div className={wrapperClass}>
+                {form.items && (
+                    <div
+                        className={formClass}
+                        style={{ display: 'flex', justifyContent: 'space-between', }}
+                    >
+                        <Form
+                            initialValues={form.initialValues as any}
+                            form={table.form}
+                            layout="inline"
+                            onFinish={onFinish}>
+                            {form.title && <Form.Item>{form.title}</Form.Item>}
+                            {form.items}
+                            <Form.Item>
+                                <Space>
+                                    <Button type="primary" htmlType="submit">
+                                        查询
+                                    </Button>
+                                    <Button onClick={onReset}>重置</Button>
+                                    {form.extra}
+                                </Space>
+                            </Form.Item>
+                        </Form>
+                        {form.right}
+                    </div>
+                )}
+                <div className={tableClass}>
+                    {toolbar && <div className="toolbar">{toolbar}</div>}
+                    {alertRender}
+                    <Table
+                        columns={column}
+                        loading={loading}
+                        scroll={{ x }}
+                        locale={{ emptyText: '暂无数据' }}
+                        rowKey={rowKey as any}
+                        rowSelection={rowSelection}
+                        onChange={(p, _, sorter) => tableChange(p, sorter)}
+                        pagination={{
+                            current: page,
+                            pageSize: size,
+                            showQuickJumper: true,
+                            showSizeChanger: true,
+                            pageSizeOptions,
+                            total: data.total as (number | undefined) ?? 0,
+                            showTotal(total) {
+                                return `共 ${total} 条记录`;
+                            },
+                        }}
+                        dataSource={dataSource}
+                    />
                 </div>
-            )}
-            <div className={tableClass}>
-                {toolbar && <div className="toolbar">{toolbar}</div>}
-                {alertRender}
-                <Table
-                    columns={column}
-                    loading={loading}
-                    scroll={{ x }}
-                    locale={{ emptyText: '暂无数据' }}
-                    rowKey={rowKey as any}
-                    rowSelection={rowSelection}
-                    onChange={(p, _, sorter) => tableChange(p, sorter)}
-                    pagination={{
-                        current: page,
-                        pageSize: size,
-                        showQuickJumper: true,
-                        showSizeChanger: true,
-                        pageSizeOptions,
-                        total: data.total as (number | undefined) ?? 0,
-                        showTotal(total) {
-                            return `共 ${total} 条记录`;
-                        },
-                    }}
-                    dataSource={dataSource}
-                />
             </div>
-        </div>
+        </ConfigProvider>
     );
 };
 
