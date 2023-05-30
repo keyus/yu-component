@@ -145,8 +145,7 @@ var ProTable = function ProTable(props) {
       className: formClass,
       style: {
         display: 'flex',
-        justifyContent: 'space-between',
-        marginBottom: 18
+        justifyContent: 'space-between'
       },
       children: [/*#__PURE__*/_jsxs(Form, {
         initialValues: form.initialValues,
