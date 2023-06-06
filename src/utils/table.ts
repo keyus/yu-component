@@ -33,12 +33,32 @@ export interface QueryOptions {
 
 //描述table api 最终的参数组合方式
 export const getQuery = ({ page, size, sorter = {}, search = {}, urlParams = {} }: QueryOptions): Record<string, unknown> => {
+    const sort = sorter.order ? {
+        orderField: sorter.field,
+        isAsc: sorter.order === 'ascend',
+    } : {}
     return {
         page,
         size,
-        orderField: sorter.field,
-        isAsc: sorter.order === 'ascend',
+        ...sort,
         ...urlParams,
         ...search
     }
 }
+
+
+//总数量，可以动态指定读取的Key
+export const getTotal = <T extends Record<string, unknown>>(key: string, data: T,): number => {
+    if (Array.isArray(data)) return 0;
+    if (key.includes('.')) {
+        const keys = key.split('.');
+        let source: any = data;
+        keys.forEach((it) => {
+            if (source) {
+                source = source[it] as any;
+            }
+        });
+        return source as number;
+    }
+    return data[key] as number || 0;
+};
