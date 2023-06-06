@@ -12,7 +12,7 @@ interface ProTableProps<T> {
             size: number;
             sorter: {
                 field?: string;
-                order?: 'ascend' | 'descend' | undefined;
+                order?: 'ascend' | 'descend' | undefined | boolean;
             };
             data: Record<string, unknown> | null | undefined | any[];
             search: Record<string, unknown>;
@@ -36,6 +36,7 @@ interface ProTableProps<T> {
     };
     rowKey: string | ((record: T, index: number) => string);
     dataKey?: string;
+    totalKey?: string;
     manual?: boolean;
     nostyle?: boolean;
     params?: Record<string, unknown>;
@@ -63,7 +64,7 @@ declare const ProTable: {
         size?: number;
         sorter?: {
             field?: string;
-            order?: 'ascend' | 'descend' | undefined;
+            order?: 'ascend' | 'descend' | undefined | boolean;
         };
     }): {
         form: FormInstance;
@@ -72,7 +73,7 @@ declare const ProTable: {
             size: number;
             sorter: {
                 field?: string;
-                order?: 'ascend' | 'descend' | undefined;
+                order?: 'ascend' | 'descend' | undefined | boolean;
             };
             data: Record<string, unknown> | null | undefined | any[];
             search: Record<string, unknown>;

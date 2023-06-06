@@ -6,7 +6,7 @@ import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
 import { create, } from 'zustand';
 import useFetch from '../hooks/useFetch';
 import useX from '../hooks/useX';
-import { getDataSource, getQuery, QueryOptions } from '../utils/table';
+import { getDataSource, getQuery, getTotal, QueryOptions } from '../utils/table';
 import './style.css'
 
 interface ProTableProps<T> {
@@ -21,7 +21,7 @@ interface ProTableProps<T> {
             size: number;
             sorter: {
                 field?: string;
-                order?: 'ascend' | 'descend' | undefined;
+                order?: 'ascend' | 'descend' | undefined | boolean;
             };
             data: Record<string, unknown> | null | undefined | any[];
             search: Record<string, unknown>;
@@ -41,6 +41,7 @@ interface ProTableProps<T> {
     rowKey: string | ((record: T, index: number) => string);
     //后端数据列表的键名，例如：'data'、'list.data'
     dataKey?: string;
+    totalKey?: string;
     //是否手动发送请求 为false时手动调用table.run();
     manual?: boolean;
     //是否不含className
@@ -82,6 +83,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         table,
         rowKey,
         dataKey = 'data',
+        totalKey = 'total',
         manual = false,
         nostyle,
         url,
@@ -127,13 +129,15 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         loadingDelay: 300,
     });
 
-    const { dataSource, column, alertRender } = React.useMemo(() => {
+
+    const { dataSource, total, column, alertRender } = React.useMemo(() => {
         return {
             column: typeof columns === 'function' ? columns(data as any) : columns,
             dataSource: getDataSource<T>(data as any, dataKey),
             alertRender: typeof alert === 'function' ? alert(data as any) : alert,
+            total: getTotal(totalKey, data)
         };
-    }, [columns, data, dataKey]);
+    }, [columns, data, dataKey, totalKey]);
 
     const onSearch = () => {
         if (form.items) {
@@ -206,7 +210,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
             {form.items && (
                 <div
                     className={formClass}
-                    style={{ display: 'flex', justifyContent: 'space-between',  }}
+                    style={{ display: 'flex', justifyContent: 'space-between', }}
                 >
                     <Form
                         initialValues={form.initialValues as any}
@@ -245,7 +249,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
                         showQuickJumper: true,
                         showSizeChanger: true,
                         pageSizeOptions,
-                        total: data.total as (number | undefined) ?? 0,
+                        total,
                         showTotal(total) {
                             return `共 ${total} 条记录`;
                         },
@@ -262,7 +266,7 @@ ProTable.useTable = <T extends Record<string, unknown>>(options: {
     size?: number;
     sorter?: {
         field?: string;
-        order?: 'ascend' | 'descend' | undefined;
+        order?: 'ascend' | 'descend' | undefined | boolean;
     };
 } = {}) => {
     const update = useUpdate();
@@ -274,7 +278,7 @@ ProTable.useTable = <T extends Record<string, unknown>>(options: {
             size: number;
             sorter: {
                 field?: string;
-                order?: 'ascend' | 'descend' | undefined;
+                order?: 'ascend' | 'descend' | undefined | boolean;
             };
             data: Record<string, unknown> | null | undefined | any[];
             search: Record<string, unknown>;

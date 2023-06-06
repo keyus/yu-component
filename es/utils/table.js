@@ -27,10 +27,28 @@ export var getQuery = function getQuery(_ref) {
     search = _ref$search === void 0 ? {} : _ref$search,
     _ref$urlParams = _ref.urlParams,
     urlParams = _ref$urlParams === void 0 ? {} : _ref$urlParams;
-  return _objectSpread(_objectSpread({
-    page: page,
-    size: size,
+  var sort = sorter.order ? {
     orderField: sorter.field,
     isAsc: sorter.order === 'ascend'
-  }, urlParams), search);
+  } : {};
+  return _objectSpread(_objectSpread(_objectSpread({
+    page: page,
+    size: size
+  }, sort), urlParams), search);
+};
+
+//总数量，可以动态指定读取的Key
+export var getTotal = function getTotal(key, data) {
+  if (Array.isArray(data)) return 0;
+  if (key.includes('.')) {
+    var keys = key.split('.');
+    var source = data;
+    keys.forEach(function (it) {
+      if (source) {
+        source = source[it];
+      }
+    });
+    return source;
+  }
+  return data[key] || 0;
 };

@@ -7,12 +7,11 @@ import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
 import { create } from 'zustand';
 import useFetch from "../hooks/useFetch";
 import useX from "../hooks/useX";
-import { getDataSource, getQuery } from "../utils/table";
+import { getDataSource, getQuery, getTotal } from "../utils/table";
 import "./style.css";
 import { jsx as _jsx } from "react/jsx-runtime";
 import { jsxs as _jsxs } from "react/jsx-runtime";
 var ProTable = function ProTable(props) {
-  var _ref;
   var _props$className = props.className,
     className = _props$className === void 0 ? 'main-container' : _props$className,
     _props$tableClassName = props.tableClassName,
@@ -21,6 +20,8 @@ var ProTable = function ProTable(props) {
     rowKey = props.rowKey,
     _props$dataKey = props.dataKey,
     dataKey = _props$dataKey === void 0 ? 'data' : _props$dataKey,
+    _props$totalKey = props.totalKey,
+    totalKey = _props$totalKey === void 0 ? 'total' : _props$totalKey,
     _props$manual = props.manual,
     manual = _props$manual === void 0 ? false : _props$manual,
     nostyle = props.nostyle,
@@ -74,10 +75,12 @@ var ProTable = function ProTable(props) {
       return {
         column: typeof columns === 'function' ? columns(data) : columns,
         dataSource: getDataSource(data, dataKey),
-        alertRender: typeof alert === 'function' ? alert(data) : alert
+        alertRender: typeof alert === 'function' ? alert(data) : alert,
+        total: getTotal(totalKey, data)
       };
-    }, [columns, data, dataKey]),
+    }, [columns, data, dataKey, totalKey]),
     dataSource = _React$useMemo.dataSource,
+    total = _React$useMemo.total,
     column = _React$useMemo.column,
     alertRender = _React$useMemo.alertRender;
   var onSearch = function onSearch() {
@@ -192,7 +195,7 @@ var ProTable = function ProTable(props) {
           showQuickJumper: true,
           showSizeChanger: true,
           pageSizeOptions: pageSizeOptions,
-          total: (_ref = data.total) !== null && _ref !== void 0 ? _ref : 0,
+          total: total,
           showTotal: function showTotal(total) {
             return "\u5171 ".concat(total, " \u6761\u8BB0\u5F55");
           }

@@ -7,3 +7,4 @@ export interface QueryOptions {
     urlParams: Record<string, unknown>;
 }
 export declare const getQuery: ({ page, size, sorter, search, urlParams }: QueryOptions) => Record<string, unknown>;
+export declare const getTotal: <T extends Record<string, unknown>>(key: string, data: T) => number;
