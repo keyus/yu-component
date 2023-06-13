@@ -102,7 +102,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
     const formClass = cn('search-form', {
         [form.className]: form.className,
     })
-    const tableClass = cn('search-form', {
+    const tableClass = cn({
         [tableClassName]: tableClassName,
     })
 
