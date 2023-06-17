@@ -28,6 +28,7 @@ interface ProTableProps<T> {
             }>) => void;
         };
         run: () => void;
+        clear: () => void;
         refresh: () => void;
         reset: () => void;
         sortOrder: (key: string) => boolean | undefined;
@@ -89,6 +90,7 @@ declare const ProTable: {
             }>) => void;
         };
         run: () => void;
+        clear: () => void;
         refresh: () => void;
         reset: () => void;
         sortOrder: (key: string) => boolean | undefined;

@@ -70,7 +70,8 @@ var ProTable = function ProTable(props) {
     }),
     _useFetch$data = _useFetch.data,
     data = _useFetch$data === void 0 ? {} : _useFetch$data,
-    loading = _useFetch.loading;
+    loading = _useFetch.loading,
+    mutate = _useFetch.mutate;
   var _React$useMemo = React.useMemo(function () {
       return {
         column: typeof columns === 'function' ? columns(data) : columns,
@@ -104,6 +105,9 @@ var ProTable = function ProTable(props) {
   };
   if (table) {
     table.run = onSearch;
+    table.clear = function () {
+      return mutate({});
+    };
     table.refresh = toggle;
     table.reset = function () {
       if (form.items) {
@@ -235,6 +239,7 @@ ProTable.useTable = function () {
       useStore: useStore,
       //使用usestore 获取page,size,data,search， antd 
       run: function run() {},
+      clear: function clear() {},
       refresh: function refresh() {},
       reset: function reset() {},
       sortOrder: function sortOrder(key) {

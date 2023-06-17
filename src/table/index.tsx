@@ -29,6 +29,8 @@ interface ProTableProps<T> {
         };
         //执行搜索
         run: () => void;
+        //清除列表数据
+        clear: () => void;
         //api 刷新会保留当前所有搜索参数
         refresh: () => void;
         //重置所有参数并搜索,仅在传入form时生效
@@ -110,7 +112,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
     const [ready, { toggle }] = useToggle();
     const { page, size, sorter, search, setState } = table.useStore();
 
-    const { data = {}, loading } = useFetch(url, {
+    const { data = {}, loading, mutate } = useFetch(url, {
         onBefore: onBefore as () => void,
         data: ProTable.getQuery({
             page,
@@ -162,6 +164,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
 
     if (table) {
         table.run = onSearch;
+        table.clear = ()=>mutate({});
         table.refresh = toggle;
         table.reset = () => {
             if (form.items) {
@@ -285,6 +288,7 @@ ProTable.useTable = <T extends Record<string, unknown>>(options: {
             setState: (values: Partial<{ page: number; size: number; sorter: { field?: string; order?: 'ascend' | 'descend' | undefined }; data: T; search: Record<string, unknown> }>) => void;
         };
         run: () => void;
+        clear: () => void;
         refresh: () => void;
         reset: () => void;
         sortOrder: (key: string) => boolean | undefined;
@@ -305,6 +309,7 @@ ProTable.useTable = <T extends Record<string, unknown>>(options: {
             form,
             useStore: useStore as any, //使用usestore 获取page,size,data,search， antd 
             run() { },
+            clear(){ },         
             refresh: () => { },
             reset: () => { },
             sortOrder(key) {
