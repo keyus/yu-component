@@ -22,6 +22,7 @@ declare class HttpBase {
 export default class HttpRequest extends HttpBase {
     static createUrl(url: string, baseUrl: string): string;
     post(url: string, body: any, headers?: any, autoAlertError?: boolean): Promise<unknown>;
+    get(url: string, headers?: any, autoAlertError?: boolean): Promise<unknown>;
     static isFormData(body: unknown): boolean;
 }
 export declare const downloadfile: (response: any) => void;

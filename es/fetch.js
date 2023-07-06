@@ -97,6 +97,30 @@ var HttpRequest = /*#__PURE__*/function (_HttpBase) {
         });
       });
     }
+  }, {
+    key: "get",
+    value: function get(url) {
+      var _this2 = this;
+      var headers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var autoAlertError = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+      var path = HttpRequest.createUrl(url, this.baseUrl);
+      return new Promise(function (resolve, reject) {
+        fetch(HttpRequest.createUrl(url, _this2.baseUrl), {
+          method: 'GET',
+          headers: headers
+        }).then(function (response) {
+          if (!response.ok) {
+            throw new Error(response.statusText);
+          }
+          return response.json();
+        }).then(function (result) {
+          var code = result.code,
+            data = result.data;
+        }).catch(function (error) {
+          return reject(error);
+        });
+      });
+    }
   }], [{
     key: "createUrl",
     value: function createUrl(url, baseUrl) {

@@ -7,8 +7,8 @@ export interface HttpBaseOptions {
     globalHeaders?: Record<string, unknown> | (() => Record<string, unknown>); // 全局请求头
     handleNotification?: ((result: any) => void) | undefined; // 处理通知的回调函数
     handleLogout?: ((result: any) => void) | undefined; // 处理退出登录的回调函数
-} 
-  
+}
+
 class HttpBase {
     baseUrl: string;
     blobFileTypes: string[];
@@ -94,6 +94,29 @@ export default class HttpRequest extends HttpBase {
                 this.handleNotification?.(error);
                 return reject(error);
             })
+        })
+    }
+
+    get(url: string, headers: any = {}, autoAlertError = true) {
+        const path = HttpRequest.createUrl(url, this.baseUrl);
+
+        return new Promise((resolve, reject) => {
+            fetch(
+                HttpRequest.createUrl(url, this.baseUrl),
+                {
+                    method: 'GET',
+                    headers,
+                }).then((response)=>{
+                    if (!response.ok) {
+                        throw new Error(response.statusText);
+                    }
+                    return response.json();
+                }).then((result)=>{
+                    const { code, data, } = result;
+                    
+                }).catch((error)=>{
+                    return reject(error);
+                })
         })
     }
 
