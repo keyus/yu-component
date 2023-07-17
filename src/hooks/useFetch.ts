@@ -1,6 +1,6 @@
 import type { Options, Result, Service } from 'ahooks/lib/useRequest/src/types'
 import { useRequest } from 'ahooks'
-// import { message } from 'antd'
+import { message } from 'antd'
 import { default as HttpRequest, downloadfile, HttpBaseOptions } from '../fetch'
 
 export interface UseFetchOptions extends Options<Record<string, unknown>, any[]> {
@@ -19,8 +19,7 @@ const defaultOptions: HttpBaseOptions = {
         'Content-Type': 'application/json;charset=UTF-8',
         'Authorization': localStorage.getItem('token')
     }),
-    handleNotification: (result) => {},
-    // handleNotification: (result) => message.error(result.message || result.msg),
+    handleNotification: (result) => message.error(result.message || result.msg),
     handleLogout: undefined,
 }
 
