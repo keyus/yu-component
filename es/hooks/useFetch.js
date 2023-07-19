@@ -1,7 +1,7 @@
 import _objectWithoutProperties from "@babel/runtime/helpers/esm/objectWithoutProperties";
 var _excluded = ["data", "autoAlertError", "fetchOptions"];
 import { useRequest } from 'ahooks';
-// import { message } from 'antd'
+import { message } from 'antd';
 import { default as HttpRequest, downloadfile } from "../fetch";
 var defaultOptions = {
   baseUrl: '/api',
@@ -15,8 +15,9 @@ var defaultOptions = {
       'Authorization': localStorage.getItem('token')
     };
   },
-  handleNotification: function handleNotification(result) {},
-  // handleNotification: (result) => message.error(result.message || result.msg),
+  handleNotification: function handleNotification(result) {
+    return message.error(result.message || result.msg);
+  },
   handleLogout: undefined
 };
 var http = new HttpRequest(defaultOptions);

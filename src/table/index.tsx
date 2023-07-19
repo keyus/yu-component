@@ -41,7 +41,7 @@ interface ProTableProps<T> {
         update: () => void;
     };
     rowKey: string | ((record: T, index: number) => string);
-    //后端数据列表的键名，例如：'data'、'list.data'
+    //后端数据列表的键名，例如：'data'、'list.data'   是否 data下方开始查询 {code: 0, data: { data: [] }, message: '11'}, 默认使用的是data下方data
     dataKey?: string;
     totalKey?: string;
     //是否手动发送请求 为false时手动调用table.run();
