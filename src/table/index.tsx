@@ -41,6 +41,7 @@ interface ProTableProps<T> {
         update: () => void;
     };
     rowKey: string | ((record: T, index: number) => string);
+    locale?: Record<string, unknown>;
     //后端数据列表的键名，例如：'data'、'list.data'   是否 data下方开始查询 {code: 0, data: { data: [] }, message: '11'}, 默认使用的是data下方data
     dataKey?: string;
     totalKey?: string;
@@ -84,6 +85,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         tableClassName = 'main-table',
         table,
         rowKey,
+        locale,
         dataKey = 'data',
         totalKey = 'total',
         manual = false,
@@ -242,7 +244,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
                     columns={column}
                     loading={loading}
                     scroll={{ x }}
-                    locale={{ emptyText: '暂无数据' }}
+                    locale={locale}
                     rowKey={rowKey as any}
                     rowSelection={rowSelection}
                     onChange={(p, _, sorter) => tableChange(p, sorter)}

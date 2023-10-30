@@ -7,8 +7,8 @@ export interface HttpBaseOptions {
     globalHeaders?: Record<string, unknown> | (() => Record<string, unknown>); // 全局请求头
     handleNotification?: ((result: any) => void) | undefined; // 处理通知的回调函数
     handleLogout?: ((result: any) => void) | undefined; // 处理退出登录的回调函数
-}
-
+} 
+  
 class HttpBase {
     baseUrl: string;
     blobFileTypes: string[];
@@ -19,6 +19,9 @@ class HttpBase {
     handleNotification?: ((result: any) => void) | undefined;
     handleLogout?: ((result: any) => void) | undefined;
     constructor(options: HttpBaseOptions = {}) {
+        this.init(options);
+    }
+    init(options: HttpBaseOptions){
         this.baseUrl = options.baseUrl || '/api';
         this.successfulStatusCode = options.successfulStatusCode || [200];
         this.logoutStatusCodes = options.logoutStatusCodes || [401, 402, 403];
@@ -30,6 +33,9 @@ class HttpBase {
         this.handleNotification = options.handleNotification;
         this.handleLogout = options.handleLogout;
     }
+    setOptions(options: HttpBaseOptions) {
+        this.init(options);
+    }
 }
 
 export default class HttpRequest extends HttpBase {
@@ -40,7 +46,7 @@ export default class HttpRequest extends HttpBase {
         }
         return `${baseUrl}${url}`;
     }
-
+    
     post(url: string, body: any, headers: any = {}, autoAlertError = true) {
         const isFormData = HttpRequest.isFormData(body);
         const globalHeaders = typeof this.globalHeaders === 'function' ? this.globalHeaders() : this.globalHeaders
@@ -84,7 +90,7 @@ export default class HttpRequest extends HttpBase {
                 if (this.silentErrorCodes.includes(code)) {
                     return reject(result);
                 }
-                //全局错误通知
+                //错误通知
                 if (autoAlertError) {
                     this.handleNotification?.(result);
                 }
@@ -94,29 +100,6 @@ export default class HttpRequest extends HttpBase {
                 this.handleNotification?.(error);
                 return reject(error);
             })
-        })
-    }
-
-    get(url: string, headers: any = {}, autoAlertError = true) {
-        const path = HttpRequest.createUrl(url, this.baseUrl);
-
-        return new Promise((resolve, reject) => {
-            fetch(
-                HttpRequest.createUrl(url, this.baseUrl),
-                {
-                    method: 'GET',
-                    headers,
-                }).then((response)=>{
-                    if (!response.ok) {
-                        throw new Error(response.statusText);
-                    }
-                    return response.json();
-                }).then((result)=>{
-                    const { code, data, } = result;
-                    
-                }).catch((error)=>{
-                    return reject(error);
-                })
         })
     }
 
