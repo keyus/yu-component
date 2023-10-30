@@ -19,6 +19,9 @@ class HttpBase {
     handleNotification?: ((result: any) => void) | undefined;
     handleLogout?: ((result: any) => void) | undefined;
     constructor(options: HttpBaseOptions = {}) {
+        this.init(options);
+    }
+    init(options: HttpBaseOptions){
         this.baseUrl = options.baseUrl || '/api';
         this.successfulStatusCode = options.successfulStatusCode || [200];
         this.logoutStatusCodes = options.logoutStatusCodes || [401, 402, 403];
@@ -30,6 +33,9 @@ class HttpBase {
         this.handleNotification = options.handleNotification;
         this.handleLogout = options.handleLogout;
     }
+    setOptions(options: HttpBaseOptions) {
+        this.init(options);
+    }
 }
 
 export default class HttpRequest extends HttpBase {
@@ -40,7 +46,7 @@ export default class HttpRequest extends HttpBase {
         }
         return `${baseUrl}${url}`;
     }
-
+    
     post(url: string, body: any, headers: any = {}, autoAlertError = true) {
         const isFormData = HttpRequest.isFormData(body);
         const globalHeaders = typeof this.globalHeaders === 'function' ? this.globalHeaders() : this.globalHeaders
@@ -84,7 +90,7 @@ export default class HttpRequest extends HttpBase {
                 if (this.silentErrorCodes.includes(code)) {
                     return reject(result);
                 }
-                //全局错误通知
+                //错误通知
                 if (autoAlertError) {
                     this.handleNotification?.(result);
                 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Table, Form, Button, Space, ConfigProvider } from 'antd';
 import zhCN from 'antd/es/locale/zh_CN';
-import type { FormInstance } from 'antd';
+import type { FormInstance,  } from 'antd';
 import cn from 'classnames';
 import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
 import { create, } from 'zustand';
@@ -40,6 +40,7 @@ interface ProTableProps<T> {
         update: () => void;
     };
     rowKey: string | ((record: T, index: number) => string);
+    locale?: Record<string, unknown>;
     //后端数据列表的键名，例如：'data'、'list.data'
     dataKey?: string;
     //是否手动发送请求 为false时手动调用table.run();
@@ -65,6 +66,8 @@ interface ProTableProps<T> {
         className?: string;
         //是否在点击重置按钮后自动提交表单重新搜索，默认true
         reset?: boolean;
+        //执行重置操作前的回调
+        onResetBefore?: () => void;
     };
     rowSelection?: any;
     //统计提示
@@ -82,6 +85,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         tableClassName = 'main-table',
         table,
         rowKey,
+        locale,
         dataKey = 'data',
         manual = false,
         nostyle,
@@ -237,7 +241,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
                         columns={column}
                         loading={loading}
                         scroll={{ x }}
-                        locale={{ emptyText: '暂无数据' }}
+                        locale={locale}
                         rowKey={rowKey as any}
                         rowSelection={rowSelection}
                         onChange={(p, _, sorter) => tableChange(p, sorter)}

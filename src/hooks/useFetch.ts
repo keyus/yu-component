@@ -45,7 +45,7 @@ const useFetch = (
  
 //配置fetch
 useFetch.config = (options: HttpBaseOptions = {}) => {
-    http = new HttpRequest({
+    http.setOptions({
         baseUrl: options.baseUrl || defaultOptions.baseUrl,
         blobFileTypes: options.blobFileTypes || defaultOptions.blobFileTypes,
         silentErrorCodes: options.silentErrorCodes || defaultOptions.silentErrorCodes,
@@ -55,7 +55,7 @@ useFetch.config = (options: HttpBaseOptions = {}) => {
         globalHeaders: options.globalHeaders || defaultOptions.globalHeaders,
         handleNotification: options.handleNotification || defaultOptions.handleNotification,
         handleLogout: options.handleLogout,
-    })
+    });
 }
 
 export { downloadfile, http }
