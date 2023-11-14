@@ -1,62 +1,20 @@
 import type { Options, Result, Service } from 'ahooks/lib/useRequest/src/types'
 import { useRequest } from 'ahooks'
-import { message } from 'antd'
-import { default as HttpRequest, downloadfile, HttpBaseOptions } from '../fetch'
+import KyFetch, { downloadfile, } from '../fetch'
+import type { Options as KyOption } from '../fetch'
 
-export interface UseFetchOptions extends Options<Record<string, unknown>, any[]> {
-    data?: Record<string, unknown>;
-    autoAlertError?: boolean;
-    fetchOptions?: RequestInit;
-}
-
-const defaultOptions: HttpBaseOptions = {
-    baseUrl: '/api',
-    successfulStatusCode: [200,],
-    logoutStatusCodes: [401, 402],
-    silentErrorCodes: [],
-    blobFileTypes: ['stream', 'excel', 'download', 'blob'],
-    globalHeaders: () => ({
-        'Content-Type': 'application/json;charset=UTF-8',
-        'Authorization': localStorage.getItem('token')
-    }),
-    handleNotification: (result) => message.error(result.message || result.msg),
-    handleLogout: undefined,
-}
-
-let http = new HttpRequest(defaultOptions);
-
-const useFetch = (
-    url: string,
-    options: UseFetchOptions = {}
-): Result<Record<string, unknown>, any[]> => {
-    const {
-        data: body,
-        autoAlertError = true,
-        fetchOptions,
-        ...useRequestOptions
-    } = options;
-
-    const fetcher: Service<any, any> = (requestData) => {
-        if (requestData?.nativeEvent) requestData = null;
-        return http.post(url, requestData ?? body, fetchOptions, autoAlertError);
+interface UseFetchOptions extends KyOption, Options<Record<string, unknown>, any[]> { }
+const http = new KyFetch();
+const isObject = (oj: unknown) => Object.prototype.toString.call(oj) === '[object Object]';
+const useFetch = (url: string, useFetchOptions: UseFetchOptions = {}): Result<Record<string, unknown>, any[]> => {
+    const fetcher: Service<any, any> = (options: KyOption) => {
+        if (isObject(options) && Object.hasOwn(options, 'nativeEvent')) options = null;
+        return http.post(url, options || useFetchOptions);
     };
-    return useRequest(fetcher, useRequestOptions);
-};  
- 
-//配置fetch
-useFetch.config = (options: HttpBaseOptions = {}) => {
-    http.setOptions({
-        baseUrl: options.baseUrl || defaultOptions.baseUrl,
-        blobFileTypes: options.blobFileTypes || defaultOptions.blobFileTypes,
-        silentErrorCodes: options.silentErrorCodes || defaultOptions.silentErrorCodes,
-        logoutStatusCodes: options.logoutStatusCodes || defaultOptions.logoutStatusCodes,
-        successfulStatusCode: options.successfulStatusCode || defaultOptions.successfulStatusCode,
-        //function
-        globalHeaders: options.globalHeaders || defaultOptions.globalHeaders,
-        handleNotification: options.handleNotification || defaultOptions.handleNotification,
-        handleLogout: options.handleLogout,
-    });
+    return useRequest(fetcher, useFetchOptions);
+};
+useFetch.config = (options: KyOption = {}) => {
+    http.extend(options);
 }
-
 export { downloadfile, http }
 export default useFetch;

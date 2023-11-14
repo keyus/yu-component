@@ -1,6 +1,6 @@
 {
   "name": "yu-component",
-  "version": "5.1.4",
+  "version": "5.2.0",
   "description": "yu",
   "module": "./es/index",
   "main": "./lib/index",
@@ -33,7 +33,8 @@
     "@babel/runtime": "^7.23.2",
     "ahooks": "^3.7.8",
     "classnames": "^2.3.2",
-    "zustand": "^4.4.4"
+    "zustand": "^4.4.4",
+    "ky": "^1.1.3" 
   },
   "peerDependencies":{
     "antd": ">=5.10.2",

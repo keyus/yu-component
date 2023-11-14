@@ -1,112 +1,138 @@
-export interface HttpBaseOptions {
-    baseUrl?: string; // 基础 URL
-    successfulStatusCode?: number[]; // 成功的 HTTP 状态码 
-    logoutStatusCodes?: number[]; // 需要退出登录的 HTTP 状态码
-    silentErrorCodes?: number[]; // 静默处理的 HTTP 状态码
-    blobFileTypes?: string[]; // Blob 文件类型
-    globalHeaders?: Record<string, unknown> | (() => Record<string, unknown>); // 全局请求头
-    handleNotification?: ((result: any) => void) | undefined; // 处理通知的回调函数
-    handleLogout?: ((result: any) => void) | undefined; // 处理退出登录的回调函数
-} 
-  
-class HttpBase {
-    baseUrl: string;
-    blobFileTypes: string[];
-    successfulStatusCode: number[];
-    logoutStatusCodes: number[];
-    silentErrorCodes: number[];
-    globalHeaders: Record<string, unknown> | (() => Record<string, unknown>);
-    handleNotification?: ((result: any) => void) | undefined;
-    handleLogout?: ((result: any) => void) | undefined;
-    constructor(options: HttpBaseOptions = {}) {
-        this.init(options);
-    }
-    init(options: HttpBaseOptions){
-        this.baseUrl = options.baseUrl || '/api';
-        this.successfulStatusCode = options.successfulStatusCode || [200];
-        this.logoutStatusCodes = options.logoutStatusCodes || [401, 402, 403];
-        this.silentErrorCodes = options.silentErrorCodes || [];
-        this.blobFileTypes = options.blobFileTypes || ['stream', 'excel', 'download', 'blob'];
-        this.globalHeaders = options.globalHeaders || {
-            'Content-Type': 'application/json;charset=UTF-8',
-        };
-        this.handleNotification = options.handleNotification;
-        this.handleLogout = options.handleLogout;
-    }
-    setOptions(options: HttpBaseOptions) {
-        this.init(options);
-    }
+import ky from 'ky';
+import type { Options as KyOptions, KyInstance } from 'ky';
+
+export interface Options extends KyOptions {
+    data?: unknown;
+    baseUrl?: string;
+    // Blob文件类型
+    blobFileTypes?: string[];
+    // 成功code
+    successfulStatusCode?: number[],
+    // 退出code
+    logoutStatusCodes?: number[],
+    silentErrorCodes?: number[],
+    // 自动调用错误通知
+    autoAlertError?: boolean,
+    // 错误通知
+    handleNotification?: (response: any) => void;
+    // 退出操作
+    handleLogout?: (response: any) => void,
 }
 
-export default class HttpRequest extends HttpBase {
-    static createUrl(url: string, baseUrl: string) {
-        if (typeof url !== 'string') return baseUrl;
-        if (!url.startsWith('/')) {
-            url = `/${url}`
+const createKy = (options: Options) => {
+    return ky.create({
+        prefixUrl: options.prefixUrl || options.baseUrl || '/api/',
+        headers: options.headers || {
+            'content-type': 'application/json;charset=UTF-8',
+        },
+        hooks: options.hooks || {
+            beforeRequest: [
+                (request) => {
+                    request.headers.set('Authorization', localStorage.getItem('token'));
+                },
+            ],
+        },
+    })
+}
+
+class KyFetch {
+    ky: KyInstance;
+    options: Options;
+    constructor(options: Options = {}) {
+        this.saveOptions(options);
+        this.ky = createKy(options);
+    }
+    extend(options: Options = {}) {
+        this.saveOptions(options);
+        this.ky = this.ky.extend(options);
+    }
+    saveOptions(options: Options){
+        this.options = options;
+        this.options.timeout ??= 60000;
+        this.options.successfulStatusCode ??= [200];
+        this.options.silentErrorCodes ??= [];
+        this.options.autoAlertError ??= true;
+        this.options.logoutStatusCodes ??= [401, 402, 403];
+        this.options.blobFileTypes ??= ['stream', 'excel', 'download', 'blob'];
+    }
+    handleUrl(url: string) {
+        if (typeof url !== 'string') {
+            throw new Error('url must be string');
         }
-        return `${baseUrl}${url}`;
+        if (url.startsWith('/')) {
+            return url.substring(1);
+        }
+        return url;
     }
     
-    post(url: string, body: any, headers: any = {}, autoAlertError = true) {
-        const isFormData = HttpRequest.isFormData(body);
-        const globalHeaders = typeof this.globalHeaders === 'function' ? this.globalHeaders() : this.globalHeaders
-        headers = Object.assign({}, globalHeaders, headers);
-        if (isFormData) delete headers['Content-Type'];
-        let currentResponse: Response;
-        return new Promise((resolve, reject) => {
-            fetch(HttpRequest.createUrl(url, this.baseUrl), {
-                method: 'POST',
-                headers,
-                body: isFormData ? body : JSON.stringify(body),
-            }).then((response: Response) => {
-                currentResponse = response;
-                if (!response.ok) {
-                    throw new Error(response.statusText);
-                }
+    post(url: string, options: Options) {
+        return this.run(url, options, 'post')
+    }
+    get(url: string, options: Options) {
+        return this.run(url, options, 'get')
+    }
+    put(url: string, options: Options) {
+        return this.run(url, options, 'put')
+    }
+    patch(url: string, options: Options) {
+        return this.run(url, options, 'patch')
+    }
+    head(url: string, options: Options) {
+        return this.run(url, options, 'head')
+    }
+    delete(url: string, options: Options) {
+        return this.run(url, options, 'delete')
+    }
+    run(url: string, options: Options, method: string) {
+        url = this.handleUrl(url);
+        if (options.data) {
+            options.json = options.data;
+            options.data = undefined;
+        }
+        else if (options.json instanceof FormData) {
+            options.body = options.json;
+            options.json = undefined;
+        }
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await this.ky[method](url, options);
                 const contentType = (response.headers.get('content-type') || '').toLocaleLowerCase();
-                if (this.blobFileTypes.some(it => contentType.includes(it))) {
-                    return response.blob();
+                if (this.options.blobFileTypes.some(it => contentType.includes(it))) {
+                    const blob = await response.blob();
+                    resolve({
+                        code: 0,
+                        data: blob,
+                        response,
+                    })
                 }
-                return response.json();
-            }).then((result) => {
-                if (result instanceof Blob) {
-                    return resolve({
-                        code: this.successfulStatusCode,
-                        data: result,
-                        headers: currentResponse.headers,
-                    });
-                }
-                const { code, data, } = result;
+                const json: any = await response.json();
+                json.response = response;
+                const { code, data, } = json || {};
                 //成功
-                if (this.successfulStatusCode.includes(code)) {
+                if (this.options.successfulStatusCode.includes(code)) {
                     return resolve(data);
                 }
                 //退出
-                if (this.logoutStatusCodes.includes(code)) {
-                    this.handleLogout?.(result)
-                    return reject(result)
+                if (this.options.logoutStatusCodes.includes(code)) {
+                    this.options.handleLogout?.(json)
+                    return reject(json)
                 }
                 //静默
-                if (this.silentErrorCodes.includes(code)) {
-                    return reject(result);
+                if (this.options.silentErrorCodes.includes(code)) {
+                    return reject(json);
                 }
-                //错误通知
-                if (autoAlertError) {
-                    this.handleNotification?.(result);
+                if (this.options.autoAlertError) {
+                    this.options.handleNotification?.(json);
                 }
-                return reject(result)
-
-            }).catch(error => {
-                this.handleNotification?.(error);
-                return reject(error);
-            })
-        })
-    }
-
-    static isFormData(body: unknown) {
-        return body instanceof FormData;
+                reject(json);
+            } catch (error) {
+                this.options.handleNotification?.(error);
+                reject(error);
+            }
+        });
     }
 }
+export default KyFetch;
 
 //xhr response
 export const downloadfile = (response: any) => {
