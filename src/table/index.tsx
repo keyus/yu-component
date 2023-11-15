@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Table, Form, Button, Space } from 'antd';
+import type { ExpandableConfig } from 'rc-table/lib/interface';
 import type { FormInstance } from 'antd';
 import cn from 'classnames';
 import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
@@ -9,7 +10,7 @@ import useX from '../hooks/useX';
 import { getDataSource, getQuery, getTotal, QueryOptions } from '../utils/table';
 import './style.css'
 
-interface ProTableProps<T> {
+interface ProTableProps<T, RecordType = unknown> {
     className?: string;
     tableClassName?: string;
     //api url
@@ -70,6 +71,7 @@ interface ProTableProps<T> {
         reset?: boolean;
     };
     rowSelection?: any;
+    expandable?: ExpandableConfig<RecordType>;
     //统计提示
     alert?: React.ReactNode | ((data: T) => React.ReactNode);
     //操作按钮组,独立成一行
@@ -97,6 +99,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         rowSelection,
         alert,
         toolbar = null,
+        expandable,
         pageSizeOptions = [10, 20, 50, 100],
         onBefore,
     } = props;
@@ -166,7 +169,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
 
     if (table) {
         table.run = onSearch;
-        table.clear = ()=>mutate({});
+        table.clear = () => mutate({});
         table.refresh = toggle;
         table.reset = () => {
             if (form.items) {
@@ -246,6 +249,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
                     scroll={{ x }}
                     locale={locale}
                     rowKey={rowKey as any}
+                    expandable={expandable}
                     rowSelection={rowSelection}
                     onChange={(p, _, sorter) => tableChange(p, sorter)}
                     pagination={{
@@ -311,7 +315,7 @@ ProTable.useTable = <T extends Record<string, unknown>>(options: {
             form,
             useStore: useStore as any, //使用usestore 获取page,size,data,search， antd 
             run() { },
-            clear(){ },         
+            clear() { },
             refresh: () => { },
             reset: () => { },
             sortOrder(key) {

@@ -1,6 +1,8 @@
 import ky from 'ky';
 import type { Options as KyOptions, KyInstance } from 'ky';
 
+const isObject = (oj: unknown): boolean => Object.prototype.toString.call(oj) === '[object Object]';
+
 export interface Options extends KyOptions {
     data?: unknown;
     baseUrl?: string;
@@ -39,10 +41,12 @@ class KyFetch {
     ky: KyInstance;
     options: Options;
     constructor(options: Options = {}) {
+        if(!isObject(options)) throw new Error('options must be object {}');
         this.saveOptions(options);
         this.ky = createKy(options);
     }
     extend(options: Options = {}) {
+        if(!isObject(options)) throw new Error('options must be object {}');
         this.saveOptions(options);
         this.ky = this.ky.extend(options);
     }
@@ -114,6 +118,7 @@ class KyFetch {
                 }
                 //退出
                 if (this.options.logoutStatusCodes.includes(code)) {
+                    this.options.handleNotification?.(json);
                     this.options.handleLogout?.(json)
                     return reject(json)
                 }
