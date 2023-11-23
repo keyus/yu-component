@@ -69,6 +69,8 @@ interface ProTableProps<T, RecordType = unknown> {
         className?: string;
         //是否在点击重置按钮后自动提交表单重新搜索，默认true
         reset?: boolean;
+        //重置前操作,如果返回false, 则后续不再执行
+        onResetBefore?: () => void | boolean;
     };
     rowSelection?: any;
     expandable?: ExpandableConfig<RecordType>;
@@ -160,6 +162,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         });
 
         if (form.items) {
+            if(form.onResetBefore && form.onResetBefore() === false) return;
             table.form.resetFields();
             if (form.reset === undefined || form.reset === true) {
                 table.form.submit();
