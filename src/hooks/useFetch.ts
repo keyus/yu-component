@@ -8,7 +8,7 @@ const http = new KyFetch();
 const isObject = (oj: unknown): boolean => Object.prototype.toString.call(oj) === '[object Object]';
 const useFetch = (url: string, useFetchOptions: UseFetchOptions = {}): Result<Record<string, unknown>, any[]> => {
     const fetcher: Service<any, any> = (options: KyOption) => {
-        if (isObject(options) && Object.hasOwn(options, 'nativeEvent')) options = null;
+        if (isObject(options) && Object.prototype.hasOwnProperty.call(options, "nativeEvent")) options = null;
         return http.post(url, options ? { json: options } : useFetchOptions);
     };
     return useRequest(fetcher, useFetchOptions);
