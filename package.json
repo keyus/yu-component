@@ -1,6 +1,6 @@
 {
   "name": "yu-component",
-  "version": "5.5.0",
+  "version": "5.5.2",
   "description": "yu",
   "module": "./es/index",
   "main": "./lib/index",
@@ -18,8 +18,7 @@
   "license": "MIT",
   "files": [
     "es",
-    "lib",
-    "**"
+    "lib"
   ],
   "devDependencies": {
     "@rc-component/father-plugin": "^1.0.2",

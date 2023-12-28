@@ -41,16 +41,16 @@ class KyFetch {
     ky: KyInstance;
     options: Options;
     constructor(options: Options = {}) {
-        if(!isObject(options)) throw new Error('options must be object {}');
+        if (!isObject(options)) throw new Error('options must be object {}');
         this.saveOptions(options);
         this.ky = createKy(options);
     }
     extend(options: Options = {}) {
-        if(!isObject(options)) throw new Error('options must be object {}');
+        if (!isObject(options)) throw new Error('options must be object {}');
         this.saveOptions(options);
         this.ky = this.ky.extend(options);
     }
-    saveOptions(options: Options){
+    saveOptions(options: Options) {
         this.options = options;
         this.options.timeout ??= 60000;
         this.options.successfulStatusCode ??= [200];
@@ -68,7 +68,7 @@ class KyFetch {
         }
         return url;
     }
-    
+
     post(url: string, options: Options) {
         return this.run(url, options, 'post')
     }
@@ -103,7 +103,7 @@ class KyFetch {
                 const contentType = (response.headers.get('content-type') || '').toLocaleLowerCase();
                 if (this.options.blobFileTypes.some(it => contentType.includes(it))) {
                     const blob = await response.blob();
-                    resolve({
+                    return resolve({
                         code: 0,
                         data: blob,
                         response,
@@ -140,9 +140,13 @@ class KyFetch {
 export default KyFetch;
 
 //xhr response
-export const downloadfile = (response: any) => {
-    const filename = decodeURIComponent((response.headers.get('content-disposition') || '').split('filename=')[1])?.replaceAll('"', '');
-    const url = window.URL.createObjectURL(response.data);
+export const downloadfile = (res: any) => {
+    let { data, headers, response } = res;
+    if (!headers && response && response.headers) {
+        headers = response.headers;
+    }
+    const filename = decodeURIComponent((headers?.get('content-disposition') || '').split('filename=')[1])?.replaceAll('"', '');
+    const url = window.URL.createObjectURL(data);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
