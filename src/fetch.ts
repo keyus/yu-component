@@ -93,7 +93,7 @@ class KyFetch {
             options.json = options.data;
             options.data = undefined;
         }
-        else if (options.json instanceof FormData) {
+        if (options.json instanceof FormData) {
             options.body = options.json;
             options.json = undefined;
         }
