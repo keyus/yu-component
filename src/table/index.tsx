@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Table, Form, Button, Space } from 'antd';
 import type { ExpandableConfig } from 'rc-table/lib/interface';
-import type { FormInstance } from 'antd';
+import type { FormInstance, TableColumnType } from 'antd';
 import cn from 'classnames';
 import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
 import { create, } from 'zustand';
@@ -53,7 +53,7 @@ interface ProTableProps<T, RecordType = unknown> {
     //发起请求时附加参数
     params?: Record<string, unknown>;
     //antd table columns 支持函数返回一个列数组:参数data api返回数据,  一般使用function 时用于根据data，动态生成列
-    columns: ((data: T) => any[]) | any[];
+    columns: ((data: T) => TableColumnType<RecordType>[]) | TableColumnType<RecordType>[];
     form?: {
         initialValues?: Record<string, unknown>;
         //form左侧标题
