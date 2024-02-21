@@ -96,6 +96,9 @@ class KyFetch {
         if (options.json instanceof FormData) {
             options.body = options.json;
             options.json = undefined;
+            options.headers = {
+                'content-type': undefined,
+            };
         }
         return new Promise(async (resolve, reject) => {
             try {

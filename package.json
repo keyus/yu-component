@@ -1,6 +1,6 @@
 {
   "name": "yu-component",
-  "version": "5.5.4",
+  "version": "5.5.6",
   "description": "yu",
   "module": "./es/index",
   "main": "./lib/index",
