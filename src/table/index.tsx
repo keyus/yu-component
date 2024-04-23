@@ -81,6 +81,11 @@ interface ProTableProps<T, RecordType = unknown> {
     pageSizeOptions?: number[];
     //发送请求前
     onBefore?: () => void;
+    pagination?: {
+        showQuickJumper?: boolean;
+        showSizeChanger?: boolean;
+        hideOnSinglePage?: boolean;
+    };
 }
 
 const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) => {
@@ -104,6 +109,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         expandable,
         pageSizeOptions = [10, 20, 50, 100],
         onBefore,
+        pagination,
     } = props;
 
     const wrapperClass = cn({
@@ -258,8 +264,9 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
                     pagination={{
                         current: page,
                         pageSize: size,
-                        showQuickJumper: true,
-                        showSizeChanger: true,
+                        showQuickJumper: pagination ? pagination.showQuickJumper : true,
+                        showSizeChanger: pagination ? pagination.showSizeChanger : true,
+                        hideOnSinglePage: pagination ? pagination.hideOnSinglePage : true,
                         pageSizeOptions,
                         total,
                         showTotal(total) {

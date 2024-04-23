@@ -102,7 +102,8 @@ class KyFetch {
         }
         return new Promise(async (resolve, reject) => {
             try {
-                const response = await this.ky[method](url, options);
+                const response = await this.ky[method](url, options).catch((catchData: any) => {
+                });
                 const contentType = (response.headers.get('content-type') || '').toLocaleLowerCase();
                 if (this.options.blobFileTypes.some(it => contentType.includes(it))) {
                     const blob = await response.blob();
@@ -135,7 +136,7 @@ class KyFetch {
                 reject(json);
             } catch (error) {
                 this.options.handleNotification?.(error);
-                reject(error);
+                return reject(error);
             }
         });
     }
