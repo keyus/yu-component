@@ -266,7 +266,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
                         pageSize: size,
                         showQuickJumper: pagination ? pagination.showQuickJumper : true,
                         showSizeChanger: pagination ? pagination.showSizeChanger : true,
-                        hideOnSinglePage: pagination ? pagination.hideOnSinglePage : true,
+                        hideOnSinglePage: pagination ? pagination.hideOnSinglePage : false,
                         pageSizeOptions,
                         total,
                         showTotal(total) {
