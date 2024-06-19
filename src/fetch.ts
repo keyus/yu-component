@@ -23,6 +23,7 @@ export interface Options extends KyOptions {
 
 const createKy = (options: Options) => {
     return ky.create({
+        timeout: options.timeout || 60000,
         prefixUrl: options.prefixUrl || options.baseUrl || '/api/',
         headers: options.headers || {
             'content-type': 'application/json;charset=UTF-8',
