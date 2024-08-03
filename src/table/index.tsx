@@ -86,6 +86,7 @@ interface ProTableProps<T, RecordType = unknown> {
         showSizeChanger?: boolean;
         hideOnSinglePage?: boolean;
     };
+    loadingDelay?: number;
 }
 
 const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) => {
@@ -110,6 +111,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         pageSizeOptions = [10, 20, 50, 100],
         onBefore,
         pagination,
+        loadingDelay = 300,
     } = props;
 
     const wrapperClass = cn({
@@ -141,7 +143,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
                 data,
             });
         },
-        loadingDelay: 300,
+        loadingDelay,
     });
 
 
