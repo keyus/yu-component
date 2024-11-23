@@ -1,6 +1,6 @@
 {
   "name": "yu-component",
-  "version": "5.6.1",
+  "version": "5.6.2",
   "description": "yu",
   "module": "./es/index",
   "main": "./lib/index",
@@ -21,19 +21,19 @@
     "lib"
   ],
   "devDependencies": {
-    "@rc-component/father-plugin": "^1.0.2",
-    "@types/react": "^18.2.47",
-    "@types/react-dom": "^18.2.18",
+    "@rc-component/father-plugin": "^1.1.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "babel-plugin-import": "^1.13.8",
-    "father": "^4.3.8",
-    "typescript": "^5.3.3"
+    "father": "^4.5.1",
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.23.8",
-    "ahooks": "^3.7.8",
+    "@babel/runtime": "^7.26.0",
+    "ahooks": "^3.8.1",
     "classnames": "^2.5.1",
-    "zustand": "^4.4.7",
-    "ky": "^1.2.0" 
+    "zustand": "^5.0.1",
+    "ky": "^1.7.2" 
   },
   "peerDependencies":{
     "antd": ">=5.13.0",

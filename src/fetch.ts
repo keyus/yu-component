@@ -103,8 +103,7 @@ class KyFetch {
         }
         return new Promise(async (resolve, reject) => {
             try {
-                const response = await this.ky[method](url, options).catch((catchData: any) => {
-                });
+                const response = await this.ky[method](url, options)
                 const contentType = (response.headers.get('content-type') || '').toLocaleLowerCase();
                 if (this.options.blobFileTypes.some(it => contentType.includes(it))) {
                     const blob = await response.blob();
@@ -144,7 +143,7 @@ class KyFetch {
 }
 export default KyFetch;
 
-//xhr response
+//use response download 
 export const downloadfile = (res: any) => {
     let { data, headers, response } = res;
     if (!headers && response && response.headers) {
