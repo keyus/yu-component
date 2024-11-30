@@ -1,20 +1,35 @@
 import type { Options, Result, Service } from 'ahooks/lib/useRequest/src/types'
-import type { Options as KyOption, } from '../fetch'
 import { useRequest } from 'ahooks'
-import KyFetch, { downloadfile, } from '../fetch'
+import Rq, { downloadfile, isObject, } from '../fetch'
+import type { RqInit, RequestOptions } from '../fetch'
 
-interface UseFetchOptions extends KyOption, Options<Record<string, unknown>, any[]> { }
-const http = new KyFetch();
-const isObject = (oj: unknown): boolean => Object.prototype.toString.call(oj) === '[object Object]';
-const useFetch = (url: string, useFetchOptions: UseFetchOptions = {}): Result<Record<string, unknown>, any[]> => {
-    const fetcher: Service<any, any> = (options: KyOption) => {
-        if (isObject(options) && Object.prototype.hasOwnProperty.call(options, "nativeEvent")) options = null;
-        return http.post(url, options ? { json: options } : useFetchOptions);
-    };
-    return useRequest(fetcher, useFetchOptions);
-};
-useFetch.config = (options: KyOption = {}) => {
-    http.extend(options);
+type Obj = Record<string, unknown>;
+interface UseRequestOption extends Options<Obj, any[]> {
+    closeError?: boolean;
+    json?: Obj;
+    data?: Obj;
 }
-export { downloadfile, http }
+
+const rq = new Rq();
+const useFetch = (url: string, options?: UseRequestOption): Result<Obj, any[]> => {
+
+    const { closeError, json, data, ...others } = options || {};
+
+    const fetcher: Service<any, any> = (fetcherData?: Obj, fetcherOptions?: RequestOptions) => {
+        if (isObject(fetcherData) && Object.prototype.hasOwnProperty.call(fetcherData, "nativeEvent")) {
+            fetcherData = undefined;
+        }
+        const body = fetcherData ? fetcherData : json || data;
+        
+        fetcherOptions = Object.assign({}, { json: body }, fetcherOptions || {},);
+        return rq.request(url, fetcherOptions);
+    };
+
+    return useRequest(fetcher, others);
+
+};
+useFetch.config = (options: RqInit = {}) => {
+    rq.config(options);
+}
+export { downloadfile, Rq }
 export default useFetch;

@@ -129,7 +129,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
 
     const { data = {}, loading, mutate } = useFetch(url, {
         onBefore: onBefore as () => void,
-        data: ProTable.getQuery({
+        json: ProTable.getQuery({
             page,
             size,
             sorter,
@@ -145,7 +145,6 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         },
         loadingDelay,
     });
-
 
     const { dataSource, total, column, alertRender } = React.useMemo(() => {
         return {

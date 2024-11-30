@@ -1,147 +1,140 @@
-import ky from 'ky';
-import type { Options as KyOptions, KyInstance } from 'ky';
-
-const isObject = (oj: unknown): boolean => Object.prototype.toString.call(oj) === '[object Object]';
-
-export interface Options extends KyOptions {
-    data?: unknown;
+type Func = () => Record<string, any>;
+type DefaultHeaders = Record<string, any> | Func | HeadersInit;
+export interface RqInit {
     baseUrl?: string;
-    // Blob文件类型
     blobFileTypes?: string[];
-    // 成功code
-    successfulStatusCode?: number[],
-    // 退出code
-    logoutStatusCodes?: number[],
-    silentErrorCodes?: number[],
-    // 自动调用错误通知
-    autoAlertError?: boolean,
-    // 错误通知
-    handleNotification?: (response: any) => void;
-    // 退出操作
-    handleLogout?: (response: any) => void,
+    successfulStatusCode?: number[];
+    logoutStatusCodes?: number[];
+    silentErrorCodes?: number[];
+    handleError?: (response: any) => void;
+    handleLogout?: (response: any) => void;
+    headers?: DefaultHeaders;
 }
-
-const createKy = (options: Options) => {
-    return ky.create({
-        timeout: options.timeout || 60000,
-        prefixUrl: options.prefixUrl || options.baseUrl || '/api/',
-        headers: options.headers || {
-            'content-type': 'application/json;charset=UTF-8',
-        },
-        hooks: options.hooks || {
-            beforeRequest: [
-                (request) => {
-                    request.headers.set('Authorization', localStorage.getItem('token'));
-                },
-            ],
-        },
-    })
+export interface RequestOptions extends RequestInit {
+    json?: Record<string, any>;
+    data?: Record<string, any>;
+    closeError?: boolean;
 }
+export const isObject = (oj: unknown) => Object.prototype.toString.call(oj) === '[object Object]';
+export const isFunction = (oj: unknown) => Object.prototype.toString.call(oj) === '[object Function]';
 
-class KyFetch {
-    ky: KyInstance;
-    options: Options;
-    constructor(options: Options = {}) {
+class Rq {
+    options = {
+        baseUrl: '',
+        blobFileTypes: ['stream', 'excel', 'download', 'blob'],
+        successfulStatusCode: [200],
+        logoutStatusCodes: [401, 402, 403],
+        silentErrorCodes: [],
+        handleLogout: undefined,
+        handleError: undefined,
+        headers: undefined,
+    } as RqInit;
+    constructor(options?: RqInit) {
+        if (options) {
+            this.options = Object.assign(this.options, options);
+        }
+    }
+    static create(options: RqInit) {
+        return new Rq(options);
+    }
+    config(options: RqInit) {
         if (!isObject(options)) throw new Error('options must be object {}');
-        this.saveOptions(options);
-        this.ky = createKy(options);
+        this.options = Object.assign(this.options, options);
     }
-    extend(options: Options = {}) {
-        if (!isObject(options)) throw new Error('options must be object {}');
-        this.saveOptions(options);
-        this.ky = this.ky.extend(options);
-    }
-    saveOptions(options: Options) {
-        this.options = options;
-        this.options.timeout ??= 60000;
-        this.options.successfulStatusCode ??= [200];
-        this.options.silentErrorCodes ??= [];
-        this.options.autoAlertError ??= true;
-        this.options.logoutStatusCodes ??= [401, 402, 403];
-        this.options.blobFileTypes ??= ['stream', 'excel', 'download', 'blob'];
-    }
-    handleUrl(url: string) {
+    createUrl(url: string) {
         if (typeof url !== 'string') {
             throw new Error('url must be string');
         }
-        if (url.startsWith('/')) {
-            return url.substring(1);
-        }
-        return url;
+        return `${this.options.baseUrl}${url}`;
     }
 
-    post(url: string, options: Options) {
-        return this.run(url, options, 'post')
-    }
-    get(url: string, options: Options) {
-        return this.run(url, options, 'get')
-    }
-    put(url: string, options: Options) {
-        return this.run(url, options, 'put')
-    }
-    patch(url: string, options: Options) {
-        return this.run(url, options, 'patch')
-    }
-    head(url: string, options: Options) {
-        return this.run(url, options, 'head')
-    }
-    delete(url: string, options: Options) {
-        return this.run(url, options, 'delete')
-    }
-    run(url: string, options: Options, method: string) {
-        url = this.handleUrl(url);
-        if (options.data) {
-            options.json = options.data;
-            options.data = undefined;
-        }
-        if (options.json instanceof FormData) {
-            options.body = options.json;
-            options.json = undefined;
-            options.headers = {
-                'content-type': undefined,
-            };
-        }
-        return new Promise(async (resolve, reject) => {
-            try {
-                const response = await this.ky[method](url, options)
-                const contentType = (response.headers.get('content-type') || '').toLocaleLowerCase();
-                if (this.options.blobFileTypes.some(it => contentType.includes(it))) {
-                    const blob = await response.blob();
-                    return resolve({
-                        code: 0,
-                        data: blob,
-                        response,
-                    })
-                }
-                const json: any = await response.json();
-                json.response = response;
-                const { code, data, } = json || {};
-                //成功
-                if (this.options.successfulStatusCode.includes(code)) {
-                    return resolve(data);
-                }
-                //退出
-                if (this.options.logoutStatusCodes.includes(code)) {
-                    this.options.handleNotification?.(json);
-                    this.options.handleLogout?.(json)
-                    return reject(json)
-                }
-                //静默
-                if (this.options.silentErrorCodes.includes(code)) {
-                    return reject(json);
-                }
-                if (this.options.autoAlertError) {
-                    this.options.handleNotification?.(json);
-                }
-                reject(json);
-            } catch (error) {
-                this.options.handleNotification?.(error);
-                return reject(error);
-            }
+    createQueryUrl(url: string, query: Record<string, string>) {
+        let queryStr: any = new URLSearchParams();
+        Object.entries(query).forEach(([key, value]) => {
+            queryStr.append(key, value);
         });
+        queryStr = queryStr.toString();
+        if (url.includes('?')) {
+            if (url.endsWith('&')) {
+                return `${url}${queryStr}`;
+            }
+            return `${url}&${queryStr}`;
+        }
+        return `${url}?${queryStr}`;
+    }
+
+    handleDefaultHeader() {
+        let defaultHeaders = this.options.headers;
+        if (isFunction(defaultHeaders)) defaultHeaders = (defaultHeaders as Func)();
+        const headers = new Headers({ 'Content-Type': 'application/json;charset=UTF-8' });
+        if (isObject(defaultHeaders)) {
+            Object.entries(defaultHeaders).forEach(([key, value]) => {
+                headers.set(key, value as string);
+            });
+        }
+        return headers;
+    }
+
+    async request(url: string, options?: RequestOptions) {
+        if (!options) options = {};
+        const headers = this.handleDefaultHeader();
+        options.headers = new Headers({ ...Object.fromEntries(headers), ...options.headers });
+        options.method = options.method ?? 'POST';
+
+        url = this.createUrl(url);
+        if (['GET', 'HEAD'].includes(options.method.toUpperCase())) {
+            if (options.json && isObject(options.json)) {
+                url = this.createQueryUrl(url, options.json as Record<string, string>);
+            }
+        } else {
+            if (options.json) {
+                if (options.json instanceof FormData) {
+                    delete options.headers['Content-Type'];
+                } else {
+                    options.body = JSON.stringify(options.json);
+                    options.json = undefined;
+                }
+            } else {
+                if (options.body && options.json instanceof FormData) {
+                    delete options.headers['Content-Type'];
+                }
+            }
+        }
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(response.statusText);
+            const contentType = (response.headers.get('content-type') || '').toLocaleLowerCase();
+
+            if (this.options.blobFileTypes.some(it => contentType.includes(it))) {
+                const blob = await response.blob();
+                return { code: 200, data: blob, response };
+            }
+
+            const data = await response.json();
+
+            if (this.options.successfulStatusCode.includes(data?.code)) {
+                return data?.data || data;
+            }
+
+            if (options.closeError || this.options.successfulStatusCode.includes(data?.code)) {
+                return Promise.reject(data);
+            }
+
+            if (this.options.logoutStatusCodes.includes(data?.code)) {
+                this.options.handleLogout?.(data);
+            }
+
+            this.options.handleError?.(data);
+            return Promise.reject(data)
+        } catch (error) {
+            this.options.handleError?.(error);
+            return Promise.reject(error);
+        }
+
     }
 }
-export default KyFetch;
+
+
 
 //use response download 
 export const downloadfile = (res: any) => {
@@ -158,3 +151,5 @@ export const downloadfile = (res: any) => {
     a.click();
     a.remove();
 }
+
+export default Rq;
