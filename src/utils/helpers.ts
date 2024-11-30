@@ -1,42 +1,35 @@
-
+const isObject = (oj: unknown) => Object.prototype.toString.call(oj) === '[object Object]';
+const formatDate = (key: string, data: Record<string, any>, format: string = 'YYYY-MM-DD') => {
+    const it = data[key];
+    if (Array.isArray(it) && it.length > 0) {
+        data[key] = it.map((item: any) => item.format(format));
+    } else {
+        data[key] = it.format(format);
+    }
+}
 
 export default {
-    // 处理antd form values  为日期的字段，格式化成字符串
-    valuesDate(key: string | string[], data: Record<string, any>, dateFormat: string = 'YYYY-MM-DD'): Record<string, any> {
-        const isDateArray = (value: any) => {
-            return Array.isArray(value) && value.length > 0;
-        }
-        const format = (value: any) => {
-            return value?.format(dateFormat)
-        }
+    formatDate(key: string, data: Record<string, any>, format: string = 'YYYY-MM-DD') {
+        if (!isObject(data)) return data;
         if (typeof key === 'string' && key in data) {
-            const value = data[key];
-            data[key] = isDateArray(value) ?
-                [
-                    format(value[0]),
-                    format(value[1])
-                ] : format(value)
+            formatDate(key, data, format);
+            return data;
         }
         if (Array.isArray(key)) {
-            key.forEach((item: string) => {
-                const value = data[item];
-                data[item] = isDateArray(value) ?
-                    [
-                        format(value[0]),
-                        format(value[1])
-                    ] : format(value)
-            })
+            for (const it of key) {
+                if (it in data) {
+                    formatDate(it, data, format);
+                }
+            }
+            return data;
         }
         return data;
     },
-
-    // 移除空值key或空字符串数组key
     removeEmpty(data: Record<string, any>) {
-        if (typeof data !== 'object') return data;
+        if (!isObject(data)) return data;
         Object.keys(data).forEach((key: string) => {
-            if (data[key] === '') return delete data[key];
-            if (Array.isArray(data[key]) && data[key].toString() === '') {
-                return delete data[key];
+            if (data[key] === '' || (Array.isArray(data[key]) && data[key].toString() === '')) {
+                delete data[key];
             }
         });
         return data;
