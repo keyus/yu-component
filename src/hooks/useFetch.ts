@@ -11,8 +11,7 @@ interface UseRequestOption extends Options<Obj, any[]> {
 }
 
 const rq = new Rq();
-const useFetch = (url: string, options?: UseRequestOption): Result<Obj, any[]> => {
-
+const useFetch = <TData = Obj>(url: string, options?: UseRequestOption): Result<TData, any[]> => {
     const { closeError, json, data, ...others } = options || {};
 
     const fetcher: Service<any, any> = (fetcherData?: Obj, fetcherOptions?: RequestOptions) => {
@@ -20,7 +19,7 @@ const useFetch = (url: string, options?: UseRequestOption): Result<Obj, any[]> =
             fetcherData = undefined;
         }
         const body = fetcherData ? fetcherData : json || data;
-        
+
         fetcherOptions = Object.assign({}, { json: body }, fetcherOptions || {},);
         return rq.request(url, fetcherOptions);
     };
