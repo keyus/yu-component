@@ -7,7 +7,7 @@ import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
 import { create, } from 'zustand';
 import useFetch from '../hooks/useFetch';
 import useX from '../hooks/useX';
-import { getDataSource, getQuery, getTotal, QueryOptions } from '../utils/table';
+import { getDataSource, getQuery, getTotal, QueryOptions, formatDate, removeEmpty } from '../utils/table';
 import './style.css'
 
 interface ProTableProps<T, RecordType = unknown> {
@@ -169,7 +169,7 @@ const ProTable = <T extends Record<string, unknown>>(props: ProTableProps<T>) =>
         });
 
         if (form.items) {
-            if(form.onResetBefore && form.onResetBefore() === false) return;
+            if (form.onResetBefore && form.onResetBefore() === false) return;
             table.form.resetFields();
             if (form.reset === undefined || form.reset === true) {
                 table.form.submit();
@@ -340,12 +340,15 @@ ProTable.useTable = <T extends Record<string, unknown>>(options: {
 };
 
 ProTable.getQuery = getQuery;
-
+ProTable.formatDate = formatDate;
+ProTable.removeEmpty = removeEmpty;
 //自定义配置参数组合方式.  默认提供 page,size，orderField，isAsc，...urlParams,...search
 ProTable.config = (options: { getQuery?: (data: QueryOptions) => Record<string, unknown> } = {}) => {
     if (options.getQuery) {
         ProTable.getQuery = options.getQuery;
     }
 }
+
+
 
 export default ProTable;
