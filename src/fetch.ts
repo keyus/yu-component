@@ -9,11 +9,13 @@ export interface RqInit {
     handleError?: (response: any) => void;
     handleLogout?: (response: any) => void;
     headers?: DefaultHeaders;
+    returnData?: boolean;
 }
 export interface RequestOptions extends RequestInit {
     json?: Record<string, any>;
     data?: Record<string, any>;
     closeError?: boolean;
+    returnData?: boolean;
 }
 export const isObject = (oj: unknown) => Object.prototype.toString.call(oj) === '[object Object]';
 export const isFunction = (oj: unknown) => Object.prototype.toString.call(oj) === '[object Function]';
@@ -28,6 +30,7 @@ class Rq {
         handleLogout: undefined,
         handleError: undefined,
         headers: undefined,
+        returnData: true,
     } as RqInit;
     constructor(options?: RqInit) {
         if (options) {
@@ -113,7 +116,11 @@ class Rq {
             const data = await response.json();
 
             if (this.options.successfulStatusCode.includes(data?.code)) {
-                return data?.data || data;
+                if (this.options.returnData === false || options.returnData === false) {
+                    return data;
+                } else {
+                    return data.hasOwnProperty('data') ? data.data : data;
+                }
             }
 
             if (options.closeError || this.options.successfulStatusCode.includes(data?.code)) {
