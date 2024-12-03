@@ -4,11 +4,11 @@ export interface QueryOptions {
     page: number;
     size: number;
     //antd 返回的sorter对像
-    sorter: Record<string, unknown>;
+    sorter: Record<string, any>;
     //表单值
-    search: Record<string, unknown>;
+    search: Record<string, any>;
     //传入的params
-    urlParams: Record<string, unknown>;
+    urlParams: Record<string, any>;
 }
 
 //获取key对应的数据
