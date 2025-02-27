@@ -31,5 +31,5 @@ const useFetch = <TData = Obj>(url: string, options?: UseRequestOption): Result<
 useFetch.config = (options: RqInit = {}) => {
     rq.config(options);
 }
-export { downloadfile, Rq }
+export { downloadfile, rq, Rq }
 export default useFetch;

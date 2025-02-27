@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import cn from 'classnames';
-import type { ProTableProps, UseTableProps, TableRef, TableState } from './types';
+import type { ProTableProps, UseTableProps, TableRef, TableState, } from './types';
 import { Table, Form, Button, Space } from 'antd';
 import { useMount, useToggle, useUpdate, useUpdateEffect } from 'ahooks';
 import { create, } from 'zustand';
@@ -204,7 +204,7 @@ const ProTable = <T extends Record<string, any>>(props: ProTableProps<T>) => {
 ProTable.useTable = (options: UseTableProps = {}) => {
     const update = useUpdate();
     const [form] = Form.useForm();
-    const tableRef = useRef<TableRef>();
+    const tableRef = useRef<TableRef>(null);
     if (!tableRef.current) {
         const useStore = create<TableState<any>>((set) => ({
             page: options.page ?? 1,

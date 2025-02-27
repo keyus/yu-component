@@ -92,6 +92,8 @@ class Rq {
         } else {
             if (options.json) {
                 if (options.json instanceof FormData) {
+                    options.headers.delete('Content-Type');
+                    options.body = options.json;
                     delete options.headers['Content-Type'];
                 } else {
                     options.body = JSON.stringify(options.json);

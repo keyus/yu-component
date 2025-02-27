@@ -20,7 +20,7 @@ export interface TableState<TData> {
 type UseStoreType<TData> = () => TableState<TData>;
 
 
-interface TableInstance<TData> {
+export interface TableInstance<TData = any> {
     useStore: UseStoreType<TData>;
     //执行搜索
     run: () => void;
@@ -31,9 +31,9 @@ interface TableInstance<TData> {
     //重置所有参数并搜索,仅在传入form时生效
     reset: () => void;
     //排序  table.sortOrder('列名')
-    sortOrder: (key: string) => boolean | undefined;
+    sortOrder: (key: string) => any;
     update: () => void;
-    form: FormInstance;
+    form?: FormInstance;
 }
 
 interface FormProps {
@@ -62,7 +62,7 @@ export interface ProTableProps<Tdata = any> {
     //api url
     url: string;
     //Table.useTable()实例,  返回状态库，常用方法
-    table: TableInstance<Tdata>;
+    table: TableInstance<Tdata> | null;
     rowKey: string | ((record: RecordType, index?: number) => string);
     //antd locale 国际化
     locale?: Record<string, any>;
