@@ -32,6 +32,7 @@ const ProTable = <T extends Record<string, any>>(props: ProTableProps<T>) => {
         onBefore,
         pagination,
         loadingDelay = 300,
+        method,
     } = props;
 
     const wrapperClass = cn({
@@ -48,6 +49,7 @@ const ProTable = <T extends Record<string, any>>(props: ProTableProps<T>) => {
     const { page, size, sorter, search, setState } = table.useStore();
 
     const { data = {}, loading, mutate } = useFetch(url, {
+        method,
         onBefore,
         json: ProTable.getQuery({
             page,

@@ -54,6 +54,9 @@ class Rq {
     createQueryUrl(url: string, query: Record<string, string>) {
         let queryStr: any = new URLSearchParams();
         Object.entries(query).forEach(([key, value]) => {
+            if (value === undefined || value === null) {
+                return;
+            }
             queryStr.append(key, value);
         });
         queryStr = queryStr.toString();

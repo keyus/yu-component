@@ -1,4 +1,6 @@
 import type { FormInstance, TableColumnType, GetProp, TableProps } from 'antd';
+import type { Method } from '../hooks/useFetch'
+
 
 type RowSelectionType = GetProp<TableProps, 'rowSelection'>;
 type ExpandableType = GetProp<TableProps, 'expandable'>;
@@ -96,6 +98,7 @@ export interface ProTableProps<Tdata = any> {
         hideOnSinglePage?: boolean;
     };
     loadingDelay?: number;
+    method?: Method;
 }
 
 export interface UseTableProps {
